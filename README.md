@@ -1,66 +1,113 @@
-## Foundry
+# Versioned Upgradeable Smart Contract
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This project implements a version control system for upgradeable smart contracts using the proxy pattern. It allows for upgrading and rolling back to previous versions of the implementation while maintaining state.
 
-Foundry consists of:
+## Features
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- Version history tracking
+- Upgrade functionality
+- Rollback capability
+- Owner-based access control
+- Comprehensive test coverage
+- Deployment scripts
 
-## Documentation
+## Prerequisites
 
-https://book.getfoundry.sh/
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+- Solidity ^0.8.20
+- OpenZeppelin Contracts
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd <repository-name>
+```
+
+2. Install dependencies:
+```bash
+forge install
+```
+
+## Testing
+
+Run the test suite:
+```bash
+forge test
+```
+
+For verbose output:
+```bash
+forge test -vv
+```
+
+## Deployment
+
+1. Set up your environment variables:
+```bash
+export PRIVATE_KEY=your_private_key_here
+```
+
+2. Deploy to a network:
+```bash
+forge script script/Deploy.s.sol --rpc-url <your-rpc-url> --broadcast
+```
+
+## Contract Architecture
+
+### VersionedProxy
+
+The main proxy contract that:
+- Maintains version history
+- Handles upgrades and rollbacks
+- Delegates calls to the current implementation
+- Implements access control
+
+### VersionedImplementation
+
+The implementation contract that:
+- Contains the business logic
+- Is upgradeable
+- Implements UUPS upgrade pattern
 
 ## Usage
 
-### Build
+### Upgrading
 
-```shell
-$ forge build
+To upgrade to a new version:
+```solidity
+proxy.upgradeTo(newImplementationAddress);
 ```
 
-### Test
+### Rolling Back
 
-```shell
-$ forge test
+To roll back to a previous version:
+```solidity
+proxy.rollbackTo(versionIndex);
 ```
 
-### Format
+### Getting Current Version
 
-```shell
-$ forge fmt
+To get the current implementation address:
+```solidity
+address currentVersion = proxy.getCurrentVersion();
 ```
 
-### Gas Snapshots
+### Getting Version History
 
-```shell
-$ forge snapshot
+To get the complete version history:
+```solidity
+address[] memory history = proxy.getVersionHistory();
 ```
 
-### Anvil
+## Security Considerations
 
-```shell
-$ anvil
-```
+- Only the owner can upgrade or rollback
+- Implementation addresses are validated
+- Zero address checks are implemented
+- Contract existence checks are performed
 
-### Deploy
+## License
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+MIT
